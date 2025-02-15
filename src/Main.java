@@ -9,9 +9,6 @@ public class Main {
         String regex = "[\s]";
         String commasRemoved = mipsArguments.replace(",", "");
         String[] argArray = commasRemoved.split(regex);
-        System.out.println(argArray.length);
-        for(String s : argArray){
-            System.out.println(s);
-        }
+        
     }
 }
