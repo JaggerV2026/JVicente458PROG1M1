@@ -43,10 +43,13 @@ public class Main {
         //Commenting this out for testing purposes
         //String MipsArguments = args[0];
         //Test argument
-        String mipsArguments = "add $t2, $s6, $s4";
+        String mipsArguments = "ori $fp, $t6, 0xff23";
         String regex = "[\s]";
         String commasRemoved = mipsArguments.replace(",", "");
         String[] argArray = commasRemoved.split(regex);
+
+        String offsetCleaned;
+        String[] offsetArray;
 
         int bitString = 0; //Bits to convert to hex
         String hexArgument = ""; //Arguments represented with hex
@@ -61,7 +64,83 @@ public class Main {
             bitString = (bitString << 26) | convertedHex;
 
         }
-
+        //I Format
+        else if(argArray[0].equals("addiu")){
+            bitString = 9; //001001
+            bitString = (bitString << 5) | registerDict.get(argArray[2]);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("andi")){
+            bitString = 12; //001100
+            bitString = (bitString << 5) | registerDict.get(argArray[2]);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("beq")){
+            bitString = 4; //000100
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            bitString = (bitString << 5) | registerDict.get(argArray[2]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("bne")){
+            bitString = 5; //000101
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            bitString = (bitString << 5) | registerDict.get(argArray[2]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("lui")){
+            bitString = 15; //001111
+            bitString = (bitString << 5);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("lw")){
+            bitString = 35; //100011
+            offsetCleaned = argArray[2].replace("("," ");
+            offsetCleaned = offsetCleaned.replace(")", "");
+            offsetArray = offsetCleaned.split(regex);
+            bitString = (bitString << 5) | registerDict.get(offsetArray[1]);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            if(offsetArray[0].isEmpty()){
+                bitString = (bitString << 16);
+            }
+            else {
+                bitString = ((bitString + 1)<< 16) + (Integer.parseInt(offsetArray[0]));
+            }
+        }
+        else if(argArray[0].equals("ori")){
+            bitString = 13; //001101
+            bitString = (bitString << 5) | registerDict.get(argArray[2]);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            hexArgument = argArray[3].substring(2);
+            convertedHex = Integer.parseInt(hexArgument, 16);
+            bitString = (bitString << 16) | convertedHex;
+        }
+        else if(argArray[0].equals("sw")){
+            bitString = 43; //101011
+            offsetCleaned = argArray[2].replace("("," ");
+            offsetCleaned = offsetCleaned.replace(")", "");
+            offsetArray = offsetCleaned.split(regex);
+            bitString = (bitString << 5) | registerDict.get(offsetArray[1]);
+            bitString = (bitString << 5) | registerDict.get(argArray[1]);
+            if(offsetArray[0].isEmpty()){
+                bitString = (bitString << 16);
+            }
+            else {
+                bitString = ((bitString + 1)<< 16) + (Integer.parseInt(offsetArray[0]));
+            }
+        }
         //Could be one line, but might be useful later
         hexReturn = String.format("%08x", bitString);
         System.out.println(hexReturn);
